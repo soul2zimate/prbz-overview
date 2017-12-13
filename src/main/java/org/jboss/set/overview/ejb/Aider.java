@@ -26,8 +26,9 @@ import static org.jboss.set.overview.Util.filterComponent;
 import static org.jboss.set.overview.Util.findAllBugzillaPayloads;
 import static org.jboss.set.overview.Util.findAllJiraPayloads;
 
-import static org.jboss.set.assistant.Constants.EAP70ZSTREAM;
 import static org.jboss.set.assistant.Constants.EAP64ZSTREAM;
+import static org.jboss.set.assistant.Constants.EAP70ZSTREAM;
+import static org.jboss.set.assistant.Constants.EAP71ZSTREAM;
 
 import java.net.URI;
 import java.net.URL;
@@ -81,6 +82,7 @@ public class Aider {
     private static List<Stream> allStreams = new ArrayList<>();
     private static Map<String, List<ProcessorData>> pullRequestData = new HashMap<>();
     private static Map<String, List<ProcessorData>> payloadData = new HashMap<>();
+    private static Map<String, Map<String, List<ProcessorData>>> payloadsByStreams = new HashMap<>();
     private static ServiceLoader<PullRequestProcessor> pullRequestProcessors;
     private static ServiceLoader<PayloadProcessor> payloadProcessors;
 
@@ -130,8 +132,9 @@ public class Aider {
 
     public void initAllPayloadData() {
         logger.info("payload data initialization is started.");
-        generatePayloadDataForJira(Util.jiraPayloadStore, true);
-        generatePayloadDataForBz(Util.bzPayloadStore, true);
+        generatePayloadDataForJira(EAP70ZSTREAM, Util.jiraPayloadStore_70Z, true);
+        generatePayloadDataForJira(EAP71ZSTREAM, Util.jiraPayloadStore_71Z, true);
+        generatePayloadDataForBz(EAP64ZSTREAM, Util.bzPayloadStore, true);
         logger.info("payload data initialization is finished.");
     }
 
@@ -181,11 +184,11 @@ public class Aider {
         }
     }
 
-    public void generatePayloadDataForJira(Map<String, List<Issue>> payloads, boolean firstInit) {
+    public void generatePayloadDataForJira(String taregtStream, Map<String, List<Issue>> payloads, boolean firstInit) {
         payloads.keySet().forEach(payload -> {
             List<ProcessorData> dataList = new ArrayList<>();
             logger.info(payload + " data genearation is started...");
-            Optional<Stream> stream = getCurrentStream(EAP70ZSTREAM);
+            Optional<Stream> stream = getCurrentStream(taregtStream);
             if (stream.isPresent()) {
                 for (PayloadProcessor processor : payloadProcessors) {
                     logger.info("executing processor: " + processor.getClass().getName());
@@ -212,13 +215,14 @@ public class Aider {
             }
             logger.info(payload + " data genearation is finished...");
         });
+        payloadsByStreams.put(taregtStream, payloadData);
     }
 
-    public void generatePayloadDataForBz(Map<String, Issue> payloads, boolean firstInit) {
+    public void generatePayloadDataForBz(String targetStream, Map<String, Issue> payloads, boolean firstInit) {
         payloads.keySet().forEach(payload -> {
             List<ProcessorData> dataList = new ArrayList<>();
             logger.info(payload + " data genearation is started...");
-            Optional<Stream> stream = getCurrentStream(EAP64ZSTREAM);
+            Optional<Stream> stream = getCurrentStream(targetStream);
             if (stream.isPresent()) {
                 for (PayloadProcessor processor : payloadProcessors) {
                     logger.info("executing processor: " + processor.getClass().getName());
@@ -269,8 +273,9 @@ public class Aider {
         logger.info("schedule payload data update is started ...");
         findAllBugzillaPayloads(aphrodite, false);
         findAllJiraPayloads(aphrodite, false);
-        generatePayloadDataForJira(Util.jiraPayloadStore, false);
-        generatePayloadDataForBz(Util.bzPayloadStore, false);
+        generatePayloadDataForJira(EAP70ZSTREAM, Util.jiraPayloadStore_70Z, false);
+        generatePayloadDataForJira(EAP71ZSTREAM, Util.jiraPayloadStore_71Z, false);
+        generatePayloadDataForBz(EAP64ZSTREAM, Util.bzPayloadStore, false);
         logger.info("schedule payload data update is finished ...");
 
     }
@@ -283,12 +288,12 @@ public class Aider {
         return allStreams;
     }
 
-    public static LinkedHashMap<String, Issue> getBzPayloadStore() {
-        return Util.bzPayloadStore;
+    public static LinkedHashMap<String, LinkedHashMap<String, Issue>> getBzPayloadStoresByStream() {
+        return Util.bzPayloadStoresByStream;
     }
 
-    public static LinkedHashMap<String, List<Issue>> getJiraPayloadStore() {
-        return Util.jiraPayloadStore;
+    public static LinkedHashMap<String, LinkedHashMap<String, List<Issue>>> getJiraPayloadStoresByStream() {
+        return Util.jiraPayloadStoresByStream;
     }
 
     public Map<RepositoryType, RateLimit> getRateLimits() {
