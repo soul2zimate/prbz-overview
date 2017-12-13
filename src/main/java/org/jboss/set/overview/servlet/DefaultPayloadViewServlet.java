@@ -53,7 +53,7 @@ public class DefaultPayloadViewServlet extends HttpServlet {
         if (Aider.getJiraPayloadStoresByStream().containsKey(streamName)) {
             payloadSet = Aider.getJiraPayloadStoresByStream().get(streamName).keySet();
         } else if (Aider.getBzPayloadStoresByStream().containsKey(streamName)) {
-            payloadSet = Aider.getBzPayloadStoresByStream().keySet();
+            payloadSet = Aider.getBzPayloadStoresByStream().get(streamName).keySet();
         }
 
         if (payloadSet.isEmpty()) {

@@ -24,6 +24,7 @@ package org.jboss.set.overview;
 
 import static org.jboss.set.assistant.Constants.EAP64ZPAYLOADPATTERN;
 import static org.jboss.set.assistant.Constants.EAP70ZPAYLOADPATTERN;
+import static org.jboss.set.assistant.Constants.EAP71ZPAYLOADPATTERN;
 import static org.jboss.set.assistant.Constants.EAP64ZSTREAM;
 import static org.jboss.set.assistant.Constants.EAP70ZSTREAM;
 import static org.jboss.set.assistant.Constants.EAP71ZSTREAM;
@@ -39,6 +40,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.jboss.set.aphrodite.Aphrodite;
 import org.jboss.set.aphrodite.domain.Issue;
@@ -150,11 +152,11 @@ public class Util {
     }
 
     public static void findAllJiraPayloads(Aphrodite aphrodite, boolean first) {
-        findJiraPayloads(aphrodite, first, EAP70ZSTREAM, jiraPayloadStore_70Z, FIRST_70X_PAYLOAD, LAST_70X_PAYLOAD, DEVMODE_70X_PAYLOAD, EAP70ZPAYLOAD_ALIAS_PREFIX);
-        findJiraPayloads(aphrodite, first, EAP71ZSTREAM, jiraPayloadStore_71Z, FIRST_71X_PAYLOAD, LAST_71X_PAYLOAD, DEVMODE_71X_PAYLOAD, EAP71ZPAYLOAD_ALIAS_PREFIX);
+        findJiraPayloads(aphrodite, first, EAP70ZSTREAM, jiraPayloadStore_70Z, FIRST_70X_PAYLOAD, LAST_70X_PAYLOAD, DEVMODE_70X_PAYLOAD, EAP70ZPAYLOAD_ALIAS_PREFIX, EAP70ZPAYLOADPATTERN);
+        findJiraPayloads(aphrodite, first, EAP71ZSTREAM, jiraPayloadStore_71Z, FIRST_71X_PAYLOAD, LAST_71X_PAYLOAD, DEVMODE_71X_PAYLOAD, EAP71ZPAYLOAD_ALIAS_PREFIX, EAP71ZPAYLOADPATTERN);
     }
 
-    private static void findJiraPayloads(Aphrodite aphrodite, boolean first, String eapStream, LinkedHashMap<String, List<Issue>> jiraPayloadStore, int firstPayload, int lastPayload, int devModePayload, String payloadPrefix) {
+    private static void findJiraPayloads(Aphrodite aphrodite, boolean first, String eapStream, LinkedHashMap<String, List<Issue>> jiraPayloadStore, int firstPayload, int lastPayload, int devModePayload, String payloadPrefix, Pattern payloadPattern) {
         if (first) {
             int max = devProfile ? devModePayload : lastPayload;
             for (int i = firstPayload; i <= max; i++) {
@@ -169,10 +171,9 @@ public class Util {
             }
         } else {
             String lastKey = (String) jiraPayloadStore.keySet().toArray()[jiraPayloadStore.size() - 1];
-            Matcher matcher = EAP70ZPAYLOADPATTERN.matcher(lastKey);
+            Matcher matcher = payloadPattern.matcher(lastKey);
             if (matcher.find()) {
                 int index = Integer.parseInt(matcher.group(1));
-
                 for (int i = firstPayload; i <= index; i++) {
                     // update from 7.0.1.GA to index, add to list if result is not empty.
                     String fixVersion = payloadPrefix + i + EAP7PAYLOAD_ALIAS_SUFFIX;

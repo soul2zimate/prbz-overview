@@ -37,7 +37,7 @@
 				<c:forEach var="i" items="${payloadSetByStream}">
 					<h4>
 						<li>
-							<a href="payloadview?payloadStream=${i}" id=${i}> <c:out value="${i}" /></a>
+							<a href="payloadview?streamName=${i}" id=${i}> <c:out value="${i}" /></a>
 						</li>
 					</h4>
 				</c:forEach>

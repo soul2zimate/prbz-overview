@@ -86,7 +86,7 @@ public class PayloadOverviewServlet extends HttpServlet {
             if (Aider.getJiraPayloadStoresByStream().containsKey(streamName)) {
                 payloadSet = Aider.getJiraPayloadStoresByStream().get(streamName).keySet();
             } else if (Aider.getBzPayloadStoresByStream().containsKey(streamName)) {
-                payloadSet = Aider.getJiraPayloadStoresByStream().get(streamName).keySet();
+                payloadSet = Aider.getBzPayloadStoresByStream().get(streamName).keySet();
             } else {
                 request.getRequestDispatcher("/error-wait.html").forward(request, response);
             }
@@ -108,6 +108,7 @@ public class PayloadOverviewServlet extends HttpServlet {
                     }
                     request.setAttribute("rows", payloadData);
                     request.setAttribute("payloadName", payloadName);
+                    request.setAttribute("streamName", streamName);
                     request.setAttribute("payloadSize", payloadData.size());
                     request.setAttribute("payloadStatus", maxSeverity(payloadData));
                     request.setAttribute("payloadSet", payloadSet);

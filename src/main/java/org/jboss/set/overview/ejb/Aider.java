@@ -74,8 +74,6 @@ import org.jboss.set.overview.Util;
 @Startup
 public class Aider {
     public static Logger logger = Logger.getLogger(Aider.class.getCanonicalName());
-    public static final String PAYLOAD_PROPERTIES = "payload.properties";
-    public static final String PAYLOAD_LIST = "payloadlist";
     public static final String WILDFLY_STREAM = "wildfly"; // ignored upstream in streams view
 
     private static Aphrodite aphrodite;
@@ -273,9 +271,8 @@ public class Aider {
         logger.info("schedule payload data update is started ...");
         findAllBugzillaPayloads(aphrodite, false);
         findAllJiraPayloads(aphrodite, false);
-        generatePayloadDataForJira(EAP70ZSTREAM, Util.jiraPayloadStore_70Z, false);
-        generatePayloadDataForJira(EAP71ZSTREAM, Util.jiraPayloadStore_71Z, false);
-        generatePayloadDataForBz(EAP64ZSTREAM, Util.bzPayloadStore, false);
+        Util.jiraPayloadStoresByStream.keySet().stream().forEach(e -> generatePayloadDataForJira(e, Util.jiraPayloadStoresByStream.get(e), false));
+        Util.bzPayloadStoresByStream.keySet().stream().forEach(e -> generatePayloadDataForBz(e, Util.bzPayloadStoresByStream.get(e), false));
         logger.info("schedule payload data update is finished ...");
 
     }
