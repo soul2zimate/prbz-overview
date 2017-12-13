@@ -82,6 +82,7 @@
 
 		  <form action="/prbz-overview/payloadview/overview">
 			  <input type="hidden" name="payloadName" value=${Request.payloadName}>
+			  <input type="hidden" name="streamName" value=${Request.streamName}>
 			  <select id="lstStatus" name="selectedStatus" multiple="multiple">
 				  <option value="RED">RED</option>
 				  <option value="ORANGE">ORANGE</option>
